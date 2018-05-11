@@ -1,10 +1,21 @@
 const Boom = require('boom');
 
+const setPayload = (payload = {}, boomObject) => {
+  boomObject.output.payload = payload;
+
+  if (payload instanceof Error) {
+    boomObject.output.payload = {
+      message: payload.message,
+      stack: payload.stack
+    };
+  }
+};
+
 class Baboom extends Boom {
 
-  constructor(payload, options = {}) {
-    super('EMPTY', options);
-    this.output.payload = payload;
+  constructor(payload = {}, options = {}) {
+    super(payload.message || 'No message supplied', options);
+    setPayload(payload, this);
   }
 
   static isBoom (error) {
@@ -13,7 +24,7 @@ class Baboom extends Boom {
 
 }
 
-const methods = [
+[
 
   'badData',
   'badGateway',
@@ -49,19 +60,14 @@ const methods = [
 
 ].forEach(methodName => {
 
-  Baboom[methodName] = (...args) => {
-    const error = Boom[methodName](...args);
-    error.output.payload = args[0];
+  Baboom[methodName] = (payload = {}, ...args) => {
+    let message = payload.message || 'No message supplied';
 
-    if (args[0] instanceof Error) {
-      error.output.payload = {
-        message: args[0].message,
-        stack: args[0].stack
-      };g
-    }
+    const error = Boom[methodName](message, ...args);
+    setPayload(payload, error);
 
     return error;
-  }
+  };
 
 });
 
