@@ -1,6 +1,6 @@
 {
   "name": "baboom",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple way to use custom Boom errors",
   "main": "src/index.js",
   "scripts": {
