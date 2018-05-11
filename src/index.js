@@ -2,8 +2,9 @@ const Boom = require('boom');
 
 class Baboom extends Boom {
 
-  constructor(message, options = {}) {
-    super(message, options);
+  constructor(payload, options = {}) {
+    super('EMPTY', options);
+    this.output.payload = payload;
   }
 
   static isBoom (error) {
@@ -56,7 +57,7 @@ const methods = [
       error.output.payload = {
         message: args[0].message,
         stack: args[0].stack
-      };
+      };g
     }
 
     return error;
