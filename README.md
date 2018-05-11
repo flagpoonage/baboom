@@ -26,8 +26,8 @@ throw new Baboom({
 const Baboom = require('baboom');
 
 throw Baboom.internal({
-  someData: {
-    value: 'The payload you specify here will be the exact JSON output.'
-  }
+  message: 'If a message property is provided, it will also be used in constructed the Error object',
+  someValue: 'The payload you specify here will be the exact JSON output.',
+  someArray: [1,2,3,4]
 });
 ```
