@@ -1,25 +1,39 @@
 const Boom = require('boom');
+const transforms = [];
 
-const setPayload = (payload = {}, boomObject) => {
-  boomObject.output.payload = payload;
-
-  if (payload instanceof Error) {
-    boomObject.output.payload = {
-      message: payload.message,
-      stack: payload.stack
-    };
-  }
+const makeStandardPayload = (payload = {}, boomObject) => {
+  transforms.reduce((acc, transformFunction) => {
+    return transformFunction(payload, boomObject);
+  }, payload);
 };
+
+const makeErrorPayload = e => ({
+  message: e.message,
+  stack: e.stack
+});
 
 class Baboom extends Boom {
 
   constructor(payload = {}, options = {}) {
-    super(payload.message || 'No message supplied', options);
-    setPayload(payload, this);
+    if (typeof payload === 'string') {
+      super(payload, options);
+    }
+    else if (payload instanceof Error) {
+      super(payload, options);
+      this.output.payload = makeErrorPayload(payload);
+    }
+    else {
+      super(payload.message || 'No message supplied', options);
+      this.output.payload = makeStandardPayload(payload, this);
+    }
   }
 
   static isBoom (error) {
     return Boom.isBoom(error) || (error instanceof Baboom);
+  }
+
+  static addTransform (tFn) {
+    transforms.push(tFn);
   }
 
 }
@@ -61,11 +75,19 @@ class Baboom extends Boom {
 ].forEach(methodName => {
 
   Baboom[methodName] = (payload = {}, ...args) => {
-    let message = payload.message || 'No message supplied';
-
-    const error = Boom[methodName](message, ...args);
-    setPayload(payload, error);
-
+    
+    if (typeof payload === 'string') {
+      return Boom[methodName](payload, ...args);
+    }
+    else if (payload instanceof Error) {
+      const error = Boom[methodName](payload, ...args);
+      error.output.payload = makeErrorPayload(payload);
+      return error;
+    }
+    
+    const error = Boom[methodName](payload.message || 'No message supplied', ...args);
+    error.output.payload = makeStandardPayload(payload, error);
+    
     return error;
   };
 
