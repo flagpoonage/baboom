@@ -2,7 +2,7 @@ const Boom = require('boom');
 const transforms = [];
 
 const makeStandardPayload = (payload = {}, boomObject) => {
-  transforms.reduce((acc, transformFunction) => {
+  return transforms.reduce((acc, transformFunction) => {
     return transformFunction(payload, boomObject);
   }, payload);
 };
