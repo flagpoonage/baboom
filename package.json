@@ -1,8 +1,12 @@
 {
   "name": "baboom",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Simple way to use custom Boom errors",
   "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flagpoonage/baboom.git"
+  },
   "scripts": {
     "example": "node ./src/example.js",
     "test": "echo \"Error: no test specified\" && exit 1"
